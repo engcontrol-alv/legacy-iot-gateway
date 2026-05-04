@@ -26,6 +26,15 @@ The system is organized into three main layers to ensure modularity:
 *   **Gateway Layer:** The ESP-01 converts raw data into JSON and publishes it to the MQTT Broker via Wi-Fi.
 *   **Backend Layer:** Node-RED subscribes to MQTT topics, processes the payload, and stores time-series data in InfluxDB.
 
+### Project Structure
+
+```text
+legacy-iot-gateway/
+├── README.md                # Project documentation
+├── .gitignore               # Git ignore rules
+└── gateway_firmware/        # ESP8266 firmware source code
+    └── gateway_firmware.ino # Main firmware file (Phase 1)
+
 ### Roadmap & Status
 
 *   [x] **Phase 1:** Basic firmware with Captive Portal for network provisioning.
