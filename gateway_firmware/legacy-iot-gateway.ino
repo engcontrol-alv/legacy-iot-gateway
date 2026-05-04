@@ -1,14 +1,12 @@
-/**
- * @file legacy-iot-gateway.ino
- * @author Alvaro Luiz (engcontrol-alv)
- * @brief Phase 1 - Core Network & Captive Portal Provisioning
- * @version 0.1.0
- * @details This module handles the initial Wi-Fi provisioning. 
+/**##############################################################################################
+ * Core Network & Captive Portal Provisioning (version 0.1.0)
+ * This module handles the initial Wi-Fi provisioning. 
  * It attempts to connect to a known network; if it fails, it spins up an 
  * Access Point ("ESP01-AP") for configuration. Upon successful connection, 
  * it forces the ESP8266 exclusively into Station (STA) mode, ensuring the 
  * configuration network is closed.
- */
+ * * @author Alvaro Luiz
+ ##############################################################################################*/
 
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h>
