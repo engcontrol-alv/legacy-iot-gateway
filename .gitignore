@@ -1,29 +1,23 @@
-# --- Operating System ---
-.DS_Store
-Thumbs.db
-ehthumbs.db
-
-# --- Arduino / ESP8266 Compilation ---
-build/
-*.elf
-*.hex
-*.bin
-*.out
-*.map
+# --- PlatformIO ---
+.pio/
+.pioenvs/
+.piolibdeps/
 
 # --- Editor / VS Code ---
 .vscode/
-!.vscode/settings.json
 *.code-workspace
 
-# --- Security & Secrets (For Phases 2 & 3) ---
+# --- Security & Secrets ---
 .env
 *.env
 secrets.h
 config_private.json
 
-# --- Future: Backend (Node-RED, Docker, Scripts) ---
-node_modules/
-npm-debug.log
-__pycache__/
-*.pyc
+# --- Operating System ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
