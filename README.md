@@ -1,44 +1,57 @@
-# Legacy-IoT-Gateway
+# Resilient IoT Edge
 
-**A simple, modular IoT Gateway designed to connect serial-based equipment to modern monitoring systems via MQTT.**
+> **Reference firmware for resilient IoT systems with local persistence in LittleFS and asynchronous synchronization via MQTT.**
+> Designed to operate on dual-core hardware (ESP32), aiming to mitigate data loss during severe connectivity failures.
 
-### The Challenge
+![Status](https://img.shields.io/badge/Status-Active%20Development-success)
+![Hardware](https://img.shields.io/badge/Hardware-ESP32--S3-orange)
+![RTOS](https://img.shields.io/badge/OS-FreeRTOS-green)
+![CI/CD](https://img.shields.io/badge/Build-Passing-brightgreen)
 
-Many industrial environments rely on reliable but older machines that communicate only through serial interfaces (UART). Integrating these systems into modern networks is often difficult because most commercial solutions are expensive and require proprietary hardware, making small to medium-scale telemetry projects hard to justify.
+## Overview
+This project implements an Edge Computing architecture focused on uninterrupted telemetry. This firmware utilizes true parallelism: Core 0 collects real-time sensor data, while Core 1 manages the TCP/IP stack. 
 
-### The Solution
+In the event of Wi-Fi network or MQTT Broker unavailability, the data flow is automatically redirected to a non-volatile circular buffer in Flash memory. Upon reestablishing the connection, the system performs Store-and-Forward, synchronizing the delayed data transparently and autonomously.
 
-This project offers a practical gateway built on the **ESP-01 (ESP8266) platform**. It serves as a bridge that reads raw serial data and converts it into **structured JSON messages**. 
+## Main Features
+* **Multithreading (Dual-Core):** Isolated tasks via FreeRTOS.
+* **Persistence in LittleFS:** Lightweight and corruption-resistant file system (Wear Leveling).
+* **MQTT Auto-Recovery:** Timeout detection algorithm (Keep-Alive) and state transition without manual intervention.
+* **Local Diagnostics:** Real-time status interface via integrated OLED display.
 
-The system is designed to work alongside a standard backend (Node-RED, InfluxDB, and MQTT Broker) using **Docker**. This setup provides a professional way to collect and store data using affordable, widely available hardware.
+## Technology Stack & Hardware
+* **Microcontroller:** Heltec WiFi LoRa 32 V3 (ESP32-S3FN8 Dual-Core Xtensa LX7)
+* **Framework:** C++ / Arduino Core for ESP32 running on FreeRTOS
+* **Environment:** PlatformIO
+* **Protocols:** Wi-Fi 802.11 b/g/n, MQTT 5.0 (QoS 1)
 
-### Key Features
+### Hardware Notes (Heltec V3)
+The following pinout configurations were used for this board:
+* **OLED Display Pinout:** `SDA: 17`, `SCL: 18`, `RST: 21`, `Vext (Power): 36` (Active LOW).
+* **Serial Monitor (USB CDC):** Due to the use of the native ESP32-S3 USB port, the *build_flags* `-D ARDUINO_USB_MODE=1` and `-D ARDUINO_USB_CDC_ON_BOOT=1` are mandatory to prevent boot crashes.
 
-*   **Easy Network Setup (Captive Portal):** Eliminates the need for hardcoded Wi-Fi credentials. If the device cannot connect, it creates a local Wi-Fi network where you can easily enter credentials through a browser.
-*   **Data Conversion:** Automatically formats incoming serial strings into JSON packets, making them easy to process in the cloud or local servers.
-*   **Ready-to-use Backend:** Includes a Docker Compose file to set up the entire data flow (Broker, Database, and Dashboard) with minimal configuration.
-
-### Architecture
-
-The system is organized into three main layers to ensure modularity:
-
-*   **Field Layer:**  Legacy devices send raw data via Serial to the ESP-01.
-*   **Gateway Layer:** The ESP-01 converts raw data into JSON and publishes it to the MQTT Broker via Wi-Fi.
-*   **Backend Layer:** Node-RED subscribes to MQTT topics, processes the payload, and stores time-series data in InfluxDB.
-
-### Project Structure
-
+## Repository Structure
 ```text
-legacy-iot-gateway/
-├── README.md                # Project documentation
-├── .gitignore               # Git ignore rules
-└── gateway_firmware/        # ESP8266 firmware source code
-    └── gateway_firmware.ino # Main firmware file (Phase 1)
+resilient-iot-edge/
+├── docs/
+│   ├── architecture/      # State diagrams and design documentation
+│   └── tests/             # QA: Test Cases and Validation Plan (IEEE 829)
+├── firmware/              # ESP32 source code (PlatformIO)
+│   ├── include/           # Headers (.h)
+│   └── src/               # Main logic (.cpp)
+├── scripts/               # Auxiliary tools for log collection
+└── .github/workflows/     # CI/CD: Build automation
+```
 
-### Roadmap & Status
+Development Status
+[x] Phase 0 (Setup & Planning): Repository structuring, architecture definition, and test plan creation.
 
-*   [x] **Phase 1:** Basic firmware with Captive Portal for network provisioning.
-*   [ ] **Phase 2:** MQTT client implementation and JSON data structuring.
-*   [ ] **Phase 3:** Local backend configuration via Docker (Node-RED and InfluxDB).
-*   [ ] **Phase 4:** Communication stability tests and latency validation.
+[x] Phase 0.5 (Hardware & RTOS Base): Pinout validation (Heltec V3), USB Serial stabilization, and Multi-Core skeleton implementation (FreeRTOS).
 
+[ ] Phase 1 (Local Storage): LittleFS configuration and circular buffer implementation (Core 0).
+
+[ ] Phase 2 (Connectivity): Wi-Fi/MQTT integration and network failure detection routine (Core 1).
+
+[ ] Phase 3 (Synchronization): Store-and-Forward logic development for sending backlogged data post-failure.
+
+[ ] Phase 4 (Final Validation): Practical tests simulating network blackouts and integration with orchestrator (Node-RED).
